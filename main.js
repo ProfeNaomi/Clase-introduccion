@@ -1,9 +1,9 @@
-// --- Current Slide State ---
+// --- Configuración Inicial ---
 let currentIdx = 0;
 let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
 let isEditing = false;
 
-// --- Initial Data ---
+// --- Datos Predeterminados (Respaldo) ---
 const defaultSlides = [
     { title: "Matemáticas", h3: "El lenguaje para entender el universo.", p: "¡Bienvenidos a su primera clase de matemáticas! Hoy descubriremos cómo los números cuentan historias sobre todo lo que nos rodea, desde las estrellas hasta la música que escuchan.", media: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&q=80", type: "image", alternate: false },
     { title: "Conóceme", h3: "¡Hola! Soy tu guía en este viaje.", p: "Me apasiona enseñar y ver cómo mis alumnos descubren su propio potencial. Aquí no solo aprenderemos fórmulas, sino nuevas formas de pensar juntos.", media: "https://images.unsplash.com/photo-1544717297-fa154da09f5b?auto=format&fit=crop&q=80", type: "image", alternate: true },
@@ -19,9 +19,10 @@ const defaultSlides = [
     { title: "¿Alguna pregunta?", h3: "El viaje apenas comienza.", p: "¿Tienes curiosidad por algo específico? Este es el momento perfecto para compartir tus pensamientos iniciales antes de empezar con los números.", media: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80", type: "image", alternate: true }
 ];
 
-let slides = JSON.parse(localStorage.getItem('presentationData')) || defaultSlides;
+let savedData = JSON.parse(localStorage.getItem('presentationData'));
+let slides = (savedData && savedData.length > 0) ? savedData : defaultSlides;
 
-// --- Elements ---
+// --- Elementos del DOM ---
 const slidesContainer = document.getElementById('slides-container');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
@@ -30,43 +31,39 @@ const totalNumEl = document.getElementById('total-page-num');
 const navContainer = document.getElementById('slide-nav-container');
 const themeBtn = document.getElementById('theme-btn');
 const addSlideBtn = document.getElementById('add-slide-btn');
+const resetBtn = document.getElementById('reset-btn');
 const editModeBtn = document.getElementById('edit-mode-btn');
 const editModeStatus = document.getElementById('edit-mode-status');
 
-// --- Functions ---
+// --- Funciones de Lógica ---
 
 function savePresentation() {
     localStorage.setItem('presentationData', JSON.stringify(slides));
 }
 
-function getYouTubeEmbedUrl(url) {
-    if (!url) return '';
-    try {
-        const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : 
-                   url.includes('be/') ? url.split('be/')[1].split('?')[0] : 
-                   url;
-        return `https://www.youtube.com/embed/${id}?rel=0`;
-    } catch (e) {
-        return url;
-    }
+function getYouTubeId(url) {
+    if (!url) return null;
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = url.match(regex);
+    return match ? match[1] : null;
 }
 
 function renderSlides() {
     slidesContainer.innerHTML = '';
     const total = slides.length;
-    document.documentElement.style.setProperty('--container-width', `${total * 100}%`);
+    
+    // El contenedor debe medir la suma de todos los anchos de las diapositivas
+    slidesContainer.style.width = `${total * 100}vw`;
 
     slides.forEach((slide, idx) => {
         const slideDiv = document.createElement('div');
         slideDiv.className = `slide ${slide.alternate ? 'alternate' : ''}`;
-        slideDiv.style.width = `${100 / total}%`;
-
+        
         let mediaHtml = '';
-        if (slide.type === 'image') {
+        if (slide.type === 'youtube') {
+            mediaHtml = `<iframe src="https://www.youtube.com/embed/${getYouTubeId(slide.media)}?rel=0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" class="animate-in"></iframe>`;
+        } else {
             mediaHtml = `<img src="${slide.media}" alt="${slide.title}" class="animate-in">`;
-        } else if (slide.type === 'youtube') {
-            // Updated to allow fullscreen
-            mediaHtml = `<iframe src="${slide.media}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" class="animate-in"></iframe>`;
         }
 
         slideDiv.innerHTML = `
@@ -78,9 +75,9 @@ function renderSlides() {
             <div class="media-container">
                 ${mediaHtml}
                 <div class="media-overlay">
-                    <button onclick="changeLocalImage(${idx})">📁 Cargar Imagen</button>
-                    <button onclick="addYoutubeLink(${idx})">🌐 Link YouTube</button>
-                    <button class="delete-btn" onclick="deleteSlide(${idx})">🗑️ Eliminar Diapositiva</button>
+                    <button onclick="changeMedia(${idx})">📁 Cambiar Imagen</button>
+                    <button onclick="addYoutube(${idx})">🌐 Link YouTube</button>
+                    <button style="background: #ef4444; color: white;" onclick="deleteSlide(${idx})">🗑️ Eliminar</button>
                 </div>
             </div>
         `;
@@ -103,7 +100,8 @@ function initNavNumbers() {
 }
 
 function updateUI() {
-    slidesContainer.style.transform = `translateX(-${(currentIdx / slides.length) * 100}%)`;
+    // Calculamos el desplazamiento exacto en VW
+    slidesContainer.style.transform = `translateX(-${currentIdx * 100}vw)`;
     currentNumEl.innerText = currentIdx + 1;
     
     prevBtn.disabled = currentIdx === 0;
@@ -120,12 +118,14 @@ function goToSlide(idx) {
     updateUI();
 }
 
+// --- Acciones del Usuario ---
+
 window.updateText = (idx, field, text) => {
     slides[idx][field] = text;
     savePresentation();
 };
 
-window.changeLocalImage = (idx) => {
+window.changeMedia = (idx) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -144,20 +144,23 @@ window.changeLocalImage = (idx) => {
     input.click();
 };
 
-window.addYoutubeLink = (idx) => {
-    const url = prompt("Pega aquí el link de YouTube:", "https://www.youtube.com/watch?v=...");
-    if (url) {
-        slides[idx].media = getYouTubeEmbedUrl(url);
+window.addYoutube = (idx) => {
+    const url = prompt("Introduce el enlace de YouTube:");
+    const id = getYouTubeId(url);
+    if (id) {
+        slides[idx].media = url;
         slides[idx].type = 'youtube';
         savePresentation();
         renderSlides();
         updateUI();
+    } else if (url) {
+        alert("Enlace de YouTube no válido.");
     }
 };
 
 window.deleteSlide = (idx) => {
-    if (slides.length <= 1) return alert("No puedes eliminar la última diapositiva.");
-    if (confirm("¿Seguro que quieres eliminar esta diapositiva?")) {
+    if (slides.length <= 1) return alert("Mínimo debe haber una diapositiva.");
+    if (confirm("¿Eliminar esta diapositiva?")) {
         slides.splice(idx, 1);
         if (currentIdx >= slides.length) currentIdx = slides.length - 1;
         savePresentation();
@@ -166,11 +169,19 @@ window.deleteSlide = (idx) => {
     }
 };
 
+window.resetToDefault = () => {
+    if (confirm("¿Restaurar las 12 diapositivas originales? (Se perderán tus cambios)")) {
+        slides = [...defaultSlides];
+        localStorage.removeItem('presentationData');
+        location.reload();
+    }
+};
+
 addSlideBtn.addEventListener('click', () => {
     slides.push({
         title: "Nueva Diapositiva",
-        h3: "Subtítulo de la clase",
-        p: "Contenido redactado de forma educativa...",
+        h3: "Subtítulo de ejemplo",
+        p: "Texto de la nueva diapositiva...",
         media: "https://images.unsplash.com/photo-1544717297-fa154da09f5b?auto=format&fit=crop&q=80",
         type: "image",
         alternate: slides.length % 2 !== 0
@@ -180,37 +191,35 @@ addSlideBtn.addEventListener('click', () => {
     goToSlide(slides.length - 1);
 });
 
-// --- Theme Management ---
-function setDarkTheme(enabled) {
-    isDark = enabled;
-    document.body.classList.toggle('dark', isDark);
-    themeBtn.querySelector('#theme-icon').innerText = isDark ? '☀️' : '🌙';
-    themeBtn.querySelector('#theme-text').innerText = isDark ? 'Claro' : 'Oscuro';
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-themeBtn.addEventListener('click', () => setDarkTheme(!isDark));
-
-// --- Edit Mode Management ---
+// --- Gestión de Modo de Edición ---
 editModeBtn.addEventListener('click', () => {
     isEditing = !isEditing;
     document.body.classList.toggle('is-editing', isEditing);
     editModeBtn.classList.toggle('editing', isEditing);
     editModeStatus.innerText = isEditing ? 'ON' : 'OFF';
     
-    // Toggle visibility of Add Slide button
     addSlideBtn.style.display = isEditing ? 'flex' : 'none';
+    resetBtn.style.display = isEditing ? 'flex' : 'none';
     
-    // Re-render slides to apply/remove contenteditable
+    // Aplicamos los cambios visuales y editables
     renderSlides();
     updateUI();
 });
 
-// --- Keyboard Navigation ---
+// --- Tema ---
+function setTheme(dark) {
+    isDark = dark;
+    document.body.classList.toggle('dark', isDark);
+    themeBtn.querySelector('#theme-icon').innerText = isDark ? '☀️' : '🌙';
+    themeBtn.querySelector('#theme-text').innerText = isDark ? 'Claro' : 'Oscuro';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+themeBtn.addEventListener('click', () => setTheme(!isDark));
+
+// --- Navegación ---
 document.addEventListener('keydown', (e) => {
-    // If we're editing text, don't trigger slide navigation with arrows
     if (document.activeElement.hasAttribute('contenteditable')) return;
-    
     if (e.key === 'ArrowRight') goToSlide(currentIdx + 1);
     if (e.key === 'ArrowLeft') goToSlide(currentIdx - 1);
 });
@@ -218,7 +227,7 @@ document.addEventListener('keydown', (e) => {
 prevBtn.onclick = () => goToSlide(currentIdx - 1);
 nextBtn.onclick = () => goToSlide(currentIdx + 1);
 
-// --- Initialization ---
-setDarkTheme(isDark);
+// --- Inicio ---
+setTheme(isDark);
 renderSlides();
 updateUI();
