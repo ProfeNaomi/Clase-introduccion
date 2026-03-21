@@ -9,23 +9,29 @@
 </head>
 <body class="light">
     <header>
-        <div class="slide-nav" id="slide-nav-container">
-            <!-- Numbers will be injected by JS -->
+        <div class="header-left">
+            <div class="slide-nav" id="slide-nav-container">
+                <!-- Numbers will be injected by JS -->
+            </div>
         </div>
+        
         <div class="header-actions">
-            <button class="action-btn" id="add-slide-btn">
+            <button class="action-btn toggle-btn" id="edit-mode-btn">
+                <span>📝</span> Modo Editor: <strong id="edit-mode-status">OFF</strong>
+            </button>
+            <button class="action-btn" id="add-slide-btn" style="display: none;">
                 <span>➕</span> Diapositiva
             </button>
             <button class="action-btn" id="theme-btn">
                 <span id="theme-icon">🌙</span>
-                <span id="theme-text">Modo Oscuro</span>
+                <span id="theme-text">Oscuro</span>
             </button>
         </div>
     </header>
 
-    <main>
+    <main id="main-presentation">
         <div class="slides-container" id="slides-container">
-            <!-- Initial slides will be populated by JS or kept for SSR -->
+            <!-- Slides dynamically populated -->
         </div>
     </main>
 
@@ -34,7 +40,7 @@
             <span>←</span> Anterior
         </button>
         <div class="current-label" style="font-size: 1.5rem; font-weight: 600; color: var(--text-secondary)">
-            Diapositiva <span id="current-page-num">1</span> de <span id="total-page-num">12</span>
+            Diapositiva <span id="current-page-num">1</span> de <span id="total-page-num">1</span>
         </div>
         <button class="btn-ctrl" id="next-btn">
             Siguiente <span>→</span>
