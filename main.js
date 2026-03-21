@@ -28,7 +28,14 @@ const defaultSlides = [
     { title: "¿Para qué sirve?", subtitle: "", text: "Medicina, música, celulares, química, deporte... La matemática está en todo. Cuéntenme sus sueños y buscaremos el lugar de la matemática en ellos.", media: "image", src: "images/slide12.png" }
 ];
 
-// Load slides from LocalStorage or use defaults
+// Helper to extract YouTube ID and return embed URL
+function getYouTubeEmbedUrl(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    const id = (match && match[2].length === 11) ? match[2] : null;
+    return id ? `https://www.youtube.com/embed/${id}` : null;
+}
+
 function loadSlides() {
     const saved = localStorage.getItem('mate-slides');
     slides = saved ? JSON.parse(saved) : defaultSlides.map(s => ({...s}));
@@ -39,27 +46,35 @@ function saveSlides() {
     localStorage.setItem('mate-slides', JSON.stringify(slides));
 }
 
-// Render dynamic elements
 function renderSlides() {
     slidesContainer.innerHTML = '';
     navContainer.innerHTML = '';
     
-    document.documentElement.style.setProperty('--container-width', `${slides.length * 100}%`);
-    totalPageLabel.textContent = slides.length;
+    // Set dynamic widths
+    const total = slides.length;
+    document.documentElement.style.setProperty('--container-width', `${total * 100}%`);
+    totalPageLabel.textContent = total;
 
     slides.forEach((slide, i) => {
-        // Create Number buttons in header
+        // Nav Buttons
         const num = document.createElement('div');
         num.classList.add('nav-num');
         num.textContent = i + 1;
         num.addEventListener('click', () => goToSlide(i));
         navContainer.appendChild(num);
 
-        // Create the slide HTML
+        // Slide Element
         const slideDiv = document.createElement('div');
         slideDiv.classList.add('slide');
         if (i % 2 !== 0) slideDiv.classList.add('reverse');
-        slideDiv.style.width = `calc(100% / ${slides.length})`;
+        slideDiv.style.width = `${100 / total}%`;
+
+        let mediaHtml = '';
+        if (slide.media === 'image') {
+            mediaHtml = `<img src="${slide.src}" class="slide-img" alt="slide-image">`;
+        } else if (slide.media === 'youtube') {
+            mediaHtml = `<iframe class="slide-video" src="${slide.src}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
 
         slideDiv.innerHTML = `
             <div class="slide-content">
@@ -68,19 +83,16 @@ function renderSlides() {
                 <p contenteditable="true" spellcheck="true" oninput="updateSlideData(${i}, 'text', this.innerText)">${slide.text}</p>
             </div>
             <div class="slide-media-container">
-                ${slide.media === 'image' ? 
-                    `<img src="${slide.src}" class="slide-img" alt="media">` : 
-                    `<video src="${slide.src}" class="slide-video" controls autoplay muted loop></video>`
-                }
+                ${mediaHtml}
                 <div class="media-overlay">
-                    <p>Gestionar Contenido</p>
+                    <p>Gestionar Multimedia</p>
                     <div class="overlay-actions">
                         <button class="overlay-btn" onclick="document.getElementById('file-img-${i}').click()">Cargar Imagen</button>
-                        <button class="overlay-btn" onclick="document.getElementById('file-vid-${i}').click()">Cargar Video</button>
+                        <button class="overlay-btn" onclick="addYouTubeVideo(${i})">Agregar Link YouTube</button>
+                        <button class="overlay-btn" onclick="deleteSlide(${i})">Eliminar Diapositiva</button>
                     </div>
                 </div>
-                <input type="file" id="file-img-${i}" hidden accept="image/*" onchange="updateMedia(${i}, 'image', event)">
-                <input type="file" id="file-vid-${i}" hidden accept="video/*" onchange="updateMedia(${i}, 'video', event)">
+                <input type="file" id="file-img-${i}" hidden accept="image/*" onchange="uploadImage(${i}, event)">
             </div>
         `;
         slidesContainer.appendChild(slideDiv);
@@ -88,18 +100,18 @@ function renderSlides() {
     updateUI();
 }
 
-// Global functions for content updates
-window.updateSlideData = function(index, field, value) {
+// Global functions
+window.updateSlideData = (index, field, value) => {
     slides[index][field] = value;
     saveSlides();
 }
 
-window.updateMedia = function(index, type, event) {
+window.uploadImage = (index, event) => {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            slides[index].media = type;
+        reader.onload = (e) => {
+            slides[index].media = 'image';
             slides[index].src = e.target.result;
             saveSlides();
             renderSlides();
@@ -108,22 +120,48 @@ window.updateMedia = function(index, type, event) {
     }
 }
 
+window.addYouTubeVideo = (index) => {
+    const url = prompt("Ingresa el link de YouTube:");
+    if (url) {
+        const embedUrl = getYouTubeEmbedUrl(url);
+        if (embedUrl) {
+            slides[index].media = 'youtube';
+            slides[index].src = embedUrl;
+            saveSlides();
+            renderSlides();
+        } else {
+            alert("Link de YouTube no válido.");
+        }
+    }
+}
+
+window.deleteSlide = (index) => {
+    if (slides.length <= 1) return alert("Debe haber al menos una diapositiva.");
+    if (confirm("¿Estás segura de eliminar esta diapositiva?")) {
+        slides.splice(index, 1);
+        if (currentIndex >= slides.length) currentIndex = slides.length - 1;
+        saveSlides();
+        renderSlides();
+    }
+}
+
 function updateUI() {
-    slidesContainer.style.transform = `translateX(-${(currentIndex * 100) / slides.length}%)`;
+    slidesContainer.style.transform = `translateX(-${(currentIndex * 100) / (slides.length || 1)}%)`;
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex === slides.length - 1;
     document.querySelectorAll('.nav-num').forEach((num, index) => num.classList.toggle('active', index === currentIndex));
     currentPageLabel.textContent = currentIndex + 1;
 
-    // Refresh animations for active slide
     const activeSlide = slidesContainer.querySelectorAll('.slide')[currentIndex];
     if (activeSlide) {
         const c = activeSlide.querySelector('.slide-content');
         const m = activeSlide.querySelector('.slide-media-container');
         [c, m].forEach(el => {
-            el.classList.remove('animate-in');
-            void el.offsetWidth;
-            el.classList.add('animate-in');
+            if (el) {
+                el.classList.remove('animate-in');
+                void el.offsetWidth;
+                el.classList.add('animate-in');
+            }
         });
     }
 }
@@ -133,21 +171,20 @@ function goToSlide(index) {
     updateUI();
 }
 
-prevBtn.addEventListener('click', () => { if (currentIndex > 0) goToSlide(currentIndex - 1); });
-nextBtn.addEventListener('click', () => { if (currentIndex < slides.length - 1) goToSlide(currentIndex + 1); });
+prevBtn.addEventListener('click', () => currentIndex > 0 && goToSlide(currentIndex - 1));
+nextBtn.addEventListener('click', () => currentIndex < slides.length - 1 && goToSlide(currentIndex + 1));
 
 addSlideBtn.addEventListener('click', () => {
-    const newSlide = {
+    slides.push({
         title: "Nueva Diapositiva",
         subtitle: "",
-        text: "Escribe aquí tu contenido educativo...",
+        text: "Escribe aquí tu contenido...",
         media: "image",
         src: "https://via.placeholder.com/800"
-    };
-    slides.push(newSlide);
+    });
     saveSlides();
     renderSlides();
-    goToSlide(slides.length - 1); // Go to the new slide
+    goToSlide(slides.length - 1);
 });
 
 // Theme Logic
@@ -160,14 +197,12 @@ const setDarkTheme = (isDark) => {
 };
 
 themeBtn.addEventListener('click', () => setDarkTheme(!document.body.classList.contains('dark')));
-
-// Keyboard Nav
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && currentIndex > 0) goToSlide(currentIndex - 1);
     if (e.key === 'ArrowRight' && currentIndex < slides.length - 1) goToSlide(currentIndex + 1);
 });
 
-// Initial Setup
+// Init
 loadSlides();
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') setDarkTheme(true);

@@ -137,18 +137,19 @@ main {
 .slides-container {
   display: flex;
   height: 100%;
-  width: var(--container-width, 1200%); /* Dynamically updated */
+  width: var(--container-width, 100%);
   transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .slide {
-  width: var(--slide-width, 8.3333%); /* 100 / totalSlides */
+  width: var(--slide-width, 100%);
   height: 100%;
   display: flex;
   padding: 5vh var(--margin);
   gap: 4vw;
   align-items: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .slide.reverse {
@@ -182,6 +183,7 @@ main {
   height: 100%;
   object-fit: cover;
   transition: var(--transition);
+  border: none;
 }
 
 .slide-video {
