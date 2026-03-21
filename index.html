@@ -12,218 +12,20 @@
         <div class="slide-nav" id="slide-nav-container">
             <!-- Numbers will be injected by JS -->
         </div>
-        <button class="theme-toggle" id="theme-btn">
-            <span id="theme-icon">🌙</span>
-            <span id="theme-text">Modo Oscuro</span>
-        </button>
+        <div class="header-actions">
+            <button class="action-btn" id="add-slide-btn">
+                <span>➕</span> Diapositiva
+            </button>
+            <button class="action-btn" id="theme-btn">
+                <span id="theme-icon">🌙</span>
+                <span id="theme-text">Modo Oscuro</span>
+            </button>
+        </div>
     </header>
 
     <main>
         <div class="slides-container" id="slides-container">
-            <!-- Slide 1 -->
-            <div class="slide">
-                <div class="slide-content animate-in">
-                    <h2>Matemáticas</h2>
-                    <h3>El lenguaje para entender el universo.</h3>
-                    <p>Descubre la belleza oculta en cada rincón de la realidad a través de los números y las formas.</p>
-                </div>
-                <div class="slide-image-container animate-in">
-                    <img src="images/slide1.png" class="slide-img" id="img-0" alt="Slide 1">
-                    <div class="image-overlay" onclick="document.getElementById('file-0').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-0" hidden accept="image/*" onchange="changeImage(event, 0)">
-                </div>
-            </div>
-
-            <!-- Slide 2 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>¡Hola! Soy Naomi Urrea</h2>
-                    <p>Profesora de matemáticas e ingeniera industrial. Pero por sobre todo, una amante de las ciencias y las matemáticas.</p>
-                    <p>Levantamiento de pesas, videojuegos, anime, yoga, baile y ciencia... ¡Todo mezclado!</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide2.png" class="slide-img" id="img-1" alt="Slide 2">
-                    <div class="image-overlay" onclick="document.getElementById('file-1').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-1" hidden accept="image/*" onchange="changeImage(event, 1)">
-                </div>
-            </div>
-
-            <!-- Slide 3 -->
-            <div class="slide">
-                <div class="slide-content">
-                    <h2>¿Y a ti, qué te gusta?</h2>
-                    <p>Este espacio es de ustedes. Quiero conocerlas para organizar nuestras clases según sus intereses.</p>
-                    <p>Manga, deportes, música, tecnología... ¡El mundo es suyo!</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide3.png" class="slide-img" id="img-2" alt="Slide 3">
-                    <div class="image-overlay" onclick="document.getElementById('file-2').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-2" hidden accept="image/*" onchange="changeImage(event, 2)">
-                </div>
-            </div>
-
-            <!-- Slide 4 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>Acuerdo 1: Preguntar es de Valientes</h2>
-                    <p>Si no entiendes, levanta la mano. No hay preguntas tontas, lo único malo es quedarse con la duda.</p>
-                    <p>Yo te explicaré de mil formas distintas hasta que lo entiendas.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide4.png" class="slide-img" id="img-3" alt="Slide 4">
-                    <div class="image-overlay" onclick="document.getElementById('file-3').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-3" hidden accept="image/*" onchange="changeImage(event, 3)">
-                </div>
-            </div>
-
-            <!-- Slide 5 -->
-            <div class="slide">
-                <div class="slide-content">
-                    <h2>Nuestra Propia "Academia"</h2>
-                    <p>Al igual que en la antigua Grecia, aquí el conocimiento se construye en grupo.</p>
-                    <p>Si entiendes algo, ofrece ayuda a tu compañera. Avanzamos todas juntas.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide5.png" class="slide-img" id="img-4" alt="Slide 5">
-                    <div class="image-overlay" onclick="document.getElementById('file-4').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-4" hidden accept="image/*" onchange="changeImage(event, 4)">
-                </div>
-            </div>
-
-            <!-- Slide 6 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>Acuerdo 2: Un Espacio 100% Seguro</h2>
-                    <p>Cero burlas. Cuidamos la confianza de nuestras compañeras. No seas la persona que hace que otra no quiera estar aquí.</p>
-                    <p>Nos reímos CON la gente, no DE la gente.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide6.png" class="slide-img" id="img-5" alt="Slide 6">
-                    <div class="image-overlay" onclick="document.getElementById('file-5').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-5" hidden accept="image/*" onchange="changeImage(event, 5)">
-                </div>
-            </div>
-
-            <!-- Slide 7 -->
-            <div class="slide">
-                <div class="slide-content">
-                    <h2>Acuerdo 3: Disciplina y Trabajo</h2>
-                    <p>La magia no existe, la disciplina sí. Mi compromiso es estar aquí y dar lo mejor; el suyo es intentar no faltar.</p>
-                    <p>Usaremos aplicaciones y juegos. Nadie se queda atrás.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide7.png" class="slide-img" id="img-6" alt="Slide 7">
-                    <div class="image-overlay" onclick="document.getElementById('file-6').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-6" hidden accept="image/*" onchange="changeImage(event, 6)">
-                </div>
-            </div>
-
-            <!-- Slide 8 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>Habilidad 1: Argumentar</h2>
-                    <p>Pregúntate siempre "¿Por qué?". Las cosas tienen una razón lógica.</p>
-                    <p>Aprende a justificar tus decisiones con seguridad.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide8.png" class="slide-img" id="img-7" alt="Slide 8">
-                    <div class="image-overlay" onclick="document.getElementById('file-7').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-7" hidden accept="image/*" onchange="changeImage(event, 7)">
-                </div>
-            </div>
-
-            <!-- Slide 9 -->
-            <div class="slide">
-                <div class="slide-content">
-                    <h2>Habilidad 2: Representar</h2>
-                    <p>Diferentes puntos de vista: números, geometría, álgebra.</p>
-                    <p>Encuentra la forma de ver el mundo que mejor calce con tu cerebro.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide9.png" class="slide-img" id="img-8" alt="Slide 9">
-                    <div class="image-overlay" onclick="document.getElementById('file-8').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-8" hidden accept="image/*" onchange="changeImage(event, 8)">
-                </div>
-            </div>
-
-            <!-- Slide 10 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>Habilidad 3: Modelar</h2>
-                    <p>Tomar un problema del mundo real, llevarlo al mundo de las matemáticas para resolverlo.</p>
-                    <p>Y aplicar esa solución en tu vida diaria.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide10.png" class="slide-img" id="img-9" alt="Slide 10">
-                    <div class="image-overlay" onclick="document.getElementById('file-9').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-9" hidden accept="image/*" onchange="changeImage(event, 9)">
-                </div>
-            </div>
-
-            <!-- Slide 11 -->
-            <div class="slide">
-                <div class="slide-content">
-                    <h2>Habilidad 4: Resolver</h2>
-                    <p>La vida está llena de problemas. Busca soluciones lógicas.</p>
-                    <p>Ningún obstáculo será demasiado grande si sabes articular la información.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide11.png" class="slide-img" id="img-10" alt="Slide 11">
-                    <div class="image-overlay" onclick="document.getElementById('file-10').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-10" hidden accept="image/*" onchange="changeImage(event, 10)">
-                </div>
-            </div>
-
-            <!-- Slide 12 -->
-            <div class="slide reverse">
-                <div class="slide-content">
-                    <h2>¿Para qué sirve?</h2>
-                    <p>Medicina, música, celulares, química, deporte... La matemática está en todo.</p>
-                    <p>Cuéntenme sus sueños y buscaremos el lugar de la matemática en ellos.</p>
-                </div>
-                <div class="slide-image-container">
-                    <img src="images/slide12.png" class="slide-img" id="img-11" alt="Slide 12">
-                    <div class="image-overlay" onclick="document.getElementById('file-11').click()">
-                        <p>Cambiar Imagen</p>
-                        <span>Cargar desde PC</span>
-                    </div>
-                    <input type="file" id="file-11" hidden accept="image/*" onchange="changeImage(event, 11)">
-                </div>
-            </div>
-
+            <!-- Initial slides will be populated by JS or kept for SSR -->
         </div>
     </main>
 
@@ -232,7 +34,7 @@
             <span>←</span> Anterior
         </button>
         <div class="current-label" style="font-size: 1.5rem; font-weight: 600; color: var(--text-secondary)">
-            Diapositiva <span id="current-page-num">1</span> de 12
+            Diapositiva <span id="current-page-num">1</span> de <span id="total-page-num">12</span>
         </div>
         <button class="btn-ctrl" id="next-btn">
             Siguiente <span>→</span>
