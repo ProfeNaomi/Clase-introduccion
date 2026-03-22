@@ -209,6 +209,10 @@ addSlideBtn.addEventListener('click', () => {
     goTo(slides.length - 1);
 });
 
+resetBtn.addEventListener('click', () => {
+    window.resetToDefault();
+});
+
 // Teclado
 document.addEventListener('keydown', (e) => {
     if (document.activeElement.hasAttribute('contenteditable')) return;
